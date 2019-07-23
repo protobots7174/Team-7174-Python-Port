@@ -1,3 +1,7 @@
+from networktables import NetworkTables
+import math
+
+
 #THIS NUMBER REQUIRES CALIBRATION ONCE CIRCUIT BOARD IS RUNNING.
 AREA_TO_DISTANCE_MULTIPLIER = 1 
 #default speed
@@ -19,55 +23,81 @@ LIMELIGHT_ANGLE = 0.0
 class CitrusLumen:
 	def __init__(self):
 		self.currentOffset = 0
-		self.ballCorrectionMultiplier = LIMELIGHT_BALL_CORRECTION / LIMELIGHT_MAX_AREA
-		self.hatchCorrectionMultiplier = LIMELIGHT_HATCH_CORRECTION / LIMELIGHT_MAX_AREA
+		self.ballCorrectionMultiplier = LIMELIGHT_BALL_CORRECTION / \
+			LIMELIGHT_MAX_AREA
+		self.hatchCorrectionMultiplier = LIMELIGHT_HATCH_CORRECTION / \
+			LIMELIGHT_MAX_AREA
+		#probably have to change the server
+		NetworkTables.initialize(server='roborio-7174-frc.local')
+		self.limelight = NetworkTables.getTable('limelight')
 
-
-	def toggleLimelight(self) -> float:
-		pass
+	def toggleLimelight(self, toggle: bool) -> None:
+		if toggle:
+			self.limelight.putNumber('ledMode', 0)
+			self.limelight.putNumber('camMode', 0)
+		else:
+			self.limelight.putNumber('ledMode', 1)
+			self.limelight.putNumber('camMode', 1)
 
 	def targetLocated(self) -> bool:
-		pass
+		return self.limelight.getNumber('tv', 0.0)
 
 	def targetOffsetVertical(self) -> float:
-		pass
+		self.toggleLimelight(true)
+		return self.limelight.getNumber('ty', 0.0)
 
 	def targetOffsetHorizontal(self) -> float:
-		pass
+		self.toggleLimelight(true)
+		return self.limelight.getNumber('tx', 0.0)
 
 	def targetSkew(self) -> float:
-		pass
+		return self.limelight.getNumber('ts', 0.0)
 
 	def targetArea(self) -> float:
-		pass
-
-	def forwardSpeed(self) -> float:
-		pass
-
-	def horizontalBallSpeed(self) -> float:
-		pass
-
-	def horizontalHatchSpeed(self) -> float:
-		pass
-
-	def getBallCorrection(self) -> float:
-		pass
-
-	def getHatchCorrection(self) -> float:
-		pass
-
-	def autonBallLimelight(self) -> bool:
-		pass
-
-	def autonHatchLimelight(self) -> bool:
-		pass
+		return self.limelight.getNumber('ta', 0.0)
 
 	def getBallDistance(self) -> float:
-		pass
+		return (BALL_VISION_STRIP_HEIGHT - LIMELIGHT_HEIGHT) / \
+			(math.tan(LIMELIGHT_ANGLE + self.targetOffsetVertical()*\
+			math.pi / 180))
 
 	def getHatchDistance(self) -> float:
-		pass
+		return (HATCH_VISION_STRIP_HEIGHT - LIMELIGHT_HEIGHT) / \
+			(math.tan(LIMELIGHT_ANGLE + self.targetOffsetVertical()*\
+			math.pi / 180))
 
 
+	def forwardSpeed(self) -> float:
+		if self.targetArea() > LIMELIGHT_MAX_AREA:
+			return 0
+		elif self.targetArea() > 10
+			return .25
+		elif self.targetArea() > 7
+			return .4
+		else
+			return LIMELIGHT_SPEED
+
+	def horizontalBallSpeed(self) -> float:
+		currentOffset = targetOffsetHorizontal() - getBallCorrection()
+		if currentOffset > 0 and math.fabs(currentOffset) > LIMELIGHT_TOLERANCE:
+			return min(LIMELIGHT_TURNSPEED, currentOffset * .12)
+		elif currentOffset < 0 and math.fabs(currentOffset) > LIMELIGHT_TOLERANCE:
+			return min(-LIMELIGHT_TURNSPEED, currentOffset * .12)
+		else:
+			return 0
 
 
+	def horizontalHatchSpeed(self) -> float:
+		currentOffset = targetOffsetHorizontal() - getHatchCorrection()
+		if currentOffset > 0 and math.fabs(currentOffset) > LIMELIGHT_TOLERANCE:
+			return min(LIMELIGHT_TURNSPEED, currentOffset * .12)
+		elif currentOffset < 0 and math.fabs(currentOffset) > LIMELIGHT_TOLERANCE:
+			return min(-LIMELIGHT_TURNSPEED, currentOffset * .12)
+		else:
+			return 0
+
+	def getBallCorrection(self) -> float:
+		return self.ballCorrectionMultiplier * self.targetArea()
+
+	def getHatchCorrection(self) -> float:
+		return self.hatchCorrectionMultiplier * self.targetArea()
