@@ -1,4 +1,5 @@
 import wpilib
+from math import fabs
 from ctre import WPI_TalonSRX, WPI_VictorSPX
 
 RBALL_OBTAINER_VICTOR = 6
@@ -19,25 +20,43 @@ class Intake:
 		self.ballAngle.set(speed)	
 
 	def getDistance(self) -> float:
-		pass
+		return self.ballAngle.getSelectedSensorPosition(0) / 10000
 
 	def getAngleVelocity(self) -> float:
 		return self.ballAngle.get()	
 
 	def resetEncoders(self) -> None:
-		pass
+		self.ballAngle.setSelectedSensorPosition(0.0)
 
 	def encoderWrite(self, angleDistance: float) -> None:
-		pass
+		if (fabs(angleDistance - self.getDistance()) > 2 and 
+				self.getDistance() < angleDistance):
+			self.ballAngle.set(-.5)
+		elif (fabs(angleDistance - self.getDistance()) > 2 and 
+				self.getDistance() > angleDistance):
+			self.ballAngle.set(.5)
+		else:
+			self.ballAngle.set(0)
 
-	def getEncoder2Distance(self) -> float:
-		pass
 
 	def autonAngle(self, angleDistance: float) -> bool:
-		pass
+		if (fabs(angleDistance - self.getDistance()) > 2 and 
+				self.getDistance() < angleDistance):
+			self.ballAngle.set(-.5)
+			return False
+		elif (fabs(angleDistance - self.getDistance()) > 2 and 
+				self.getDistance() > angleDistance):
+			self.ballAngle.set(.5)
+			return False
+		else:
+			self.ballAngle.set(0)
+			return True
 
 	def autonInOut(self, speed: float, seconds: float) -> bool:
 		pass
 
 	def autonTimerPrep(self) -> None:
+		pass
+
+	def getEncoder2Distance(self) -> float:
 		pass
