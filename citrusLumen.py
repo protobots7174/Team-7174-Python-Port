@@ -28,8 +28,8 @@ class CitrusLumen:
 		self.hatchCorrectionMultiplier = LIMELIGHT_HATCH_CORRECTION / \
 			LIMELIGHT_MAX_AREA
 		#probably have to change the server
-		NetworkTables.initialize(server='roborio-7174-frc.local')
-		self.limelight = NetworkTables.getTable('limelight')
+		self.limelight = NetworkTables.getTable("limelight")
+		self.toggleLimelight(False)
 
 	def toggleLimelight(self, toggle: bool) -> None:
 		if toggle:
@@ -40,20 +40,23 @@ class CitrusLumen:
 			self.limelight.putNumber('camMode', 1)
 
 	def targetLocated(self) -> bool:
+		self.toggleLimelight(True)
 		return self.limelight.getNumber('tv', 0.0)
 
 	def targetOffsetVertical(self) -> float:
-		self.toggleLimelight(true)
+		self.toggleLimelight(True)
 		return self.limelight.getNumber('ty', 0.0)
 
 	def targetOffsetHorizontal(self) -> float:
-		self.toggleLimelight(true)
+		self.toggleLimelight(True)
 		return self.limelight.getNumber('tx', 0.0)
 
 	def targetSkew(self) -> float:
+		self.toggleLimelight(True)
 		return self.limelight.getNumber('ts', 0.0)
 
 	def targetArea(self) -> float:
+		self.toggleLimelight(True)
 		return self.limelight.getNumber('ta', 0.0)
 
 	def getBallDistance(self) -> float:
@@ -70,11 +73,11 @@ class CitrusLumen:
 	def forwardSpeed(self) -> float:
 		if self.targetArea() > LIMELIGHT_MAX_AREA:
 			return 0
-		elif self.targetArea() > 10
+		elif self.targetArea() > 10:
 			return .25
-		elif self.targetArea() > 7
+		elif self.targetArea() > 7:
 			return .4
-		else
+		else:
 			return LIMELIGHT_SPEED
 
 	def horizontalBallSpeed(self) -> float:

@@ -4,6 +4,8 @@ import wpilib.drive
 from drivetrain import Drivetrain
 from elevator import Elevator
 from intake import Intake
+from citrusLumen import CitrusLumen
+from networktables import NetworkTables
 
 JOYSTICK_PORT = 0
 JOYSTICK2_PORT = 1
@@ -12,11 +14,13 @@ SLOW_SPEED = .5
 
 class Robot(wpilib.TimedRobot):
 	def robotInit(self):
+		print('robotinit')
 		self.slowMode = True 
 		self.drivetrain = Drivetrain()	
 		self.elevator = Elevator()
 		self.driver = wpilib.XboxController(JOYSTICK_PORT)	
 		self.intake = Intake()
+		self.limelight = CitrusLumen() 
 
 	def robotPeriodic(self):
 		pass
