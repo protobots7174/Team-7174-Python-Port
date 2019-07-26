@@ -70,9 +70,6 @@ class Robot(wpilib.TimedRobot):
 						self.autonTimer.reset()
 				elif self.autonCase == 2:
 					self.autonDrive(0.4, 0.4, 3.0, 3.0)
-					if self.drivetrain.autonDrivetrain(0.4, 0.4, 3.0, 3.0):
-						self.drivetrain.resetEncoders()
-						self.autonCase += 1
 				elif self.autonCase == 3:
 					if self.drivetrain.autonDrivetrain(0.4, 0.4, 3.0, 3.0):
 						self.autonTimer.start()
