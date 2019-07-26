@@ -12,6 +12,19 @@ JOYSTICK2_PORT = 1
 ELEVATOR_SPEED = 0.75
 SLOW_SPEED = .5
 
+HATCH_BOTTOM = 30
+HATCH_MIDDLE = 50
+HATCH_TOP = 73
+BALL_BOTTOM = 34
+BALL_MIDDLE = 63#61
+BALL_TOP = 73
+
+CARGO_SHIP = 53
+
+START_POSITION = 0
+ROCKET_OR_TRANSPORT = 1
+CENTER_TRANSPORT_RIGHTLEFT = 1  #-1 = LEFT. 1 = RIGHT
+
 class Robot(wpilib.TimedRobot):
 	def robotInit(self):
 		print('robotinit')
@@ -21,22 +34,196 @@ class Robot(wpilib.TimedRobot):
 		self.driver = wpilib.XboxController(JOYSTICK_PORT)	
 		self.intake = Intake()
 		self.limelight = CitrusLumen() 
+		self.autonTimer = wpilib.Timer()
+		self.autonCase = None
+		self.autonAbort = None
 
 	def robotPeriodic(self):
 		pass
 
 	def autonomousInit(self):
-		print('auton init')	
+		self.drivetrain.resetEncoders()
+		self.intake.resetEncoders()
+		self.intake.autonTimerPrep()
+		self.autonCase = 0
+		self.autonAbort = False
+		self.speedMultiplier = 1.0
+		self.autonTimer.reset()
 
 	def autonomousPeriodic(self):
-		print('auton periodic')
+		if driver.getStartButtonPressed():
+			self.autonAbort = True
+		if self.autonAbort:
+			self.driverControl()
+		else:
+			'''right start'''
+			if START_POSITION == 1:
+				if self.autonCase == 0:
+					if self.drivetrain.autonStraight(3.0):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 1:
+					self.autonTimer.start()
+					if self.autonTimer.get() > 5.0:
+						self.autonDrive(-0.4, 0.4, 1.0, 1.0)
+						self.autonTimer.stop()
+						self.autonTimer.reset()
+				elif self.autonCase == 2:
+					self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					if self.drivetrain.autonDrivetrain(0.4, 0.4, 3.0, 3.0):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 3:
+					if self.drivetrain.autonDrivetrain(0.4, 0.4, 3.0, 3.0):
+						self.autonTimer.start()
+						if self.autonTimer.get() > 5.0:
+							self.drivetrain.resetEncoders()
+							self.autonCase += 1
+							self.autonTimer.stop()
+							self.autonTimer.reset()
+			'''left start'''
+			elif START_POSITION == -1:
+				if self.autonCase == 0:
+					if self.drivetrain.autonPID(2.0):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 1:
+					if self.drivetrain.autonTurning(1.5):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 2:
+					if self.drivetrain.autonPID(2.0):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 3:
+					if self.drivetrain.autonTurning(1.5):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 4:
+					if self.drivetrain.autonPID(2.0):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 5:
+					if self.drivetrain.autonTurning(1.5):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 6:
+					if self.drivetrain.autonPID(2.0):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 7:
+					if self.drivetrain.autonTurning(1.5):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+			'''center start'''
+			elif START_POSITION == 0:
+				if CENTER_TRANSPORT_RIGHTLEFT == 1:
+					if self.autonCase == 0:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					elif self.autonCase == 1:
+						self.autonDrive(-0.4, 0.4, 1.0, 1.0)
+					elif self.autonCase == 2:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					elif self.autonCase == 3:
+						self.autonDrive(0.4, -0.4, 1.0, 1.0)
+					elif self.autonCase == 4:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					elif self.autonCase == 5:#limelight
+						if self.drivetrain.autonLimeDrive(self.limelight.forwardSpeed(),
+								self.limelight.horizontalHatchSpeed(),
+								self.limelight.targetArea()):
+							self.drivetrain.resetEncoders()
+							self.autonCase += 1
+					elif self.autonCase == 6:#raise elevator
+						if self.elevator.autonElevator(HATCH_BOTTOM):
+							self.autonCase += 1	
+					elif self.autonCase == 7:#lower tilt to horizontal
+						if self.intake.autonAngle(160):
+							self.autonCase += 1
+
+				'''center left'''
+				elif CENTER_TRANSPORT_RIGHTLEFT == -1:
+					if self.autonCase == 0:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					elif self.autonCase == 1:
+						self.autonDrive(0.4, -0.4, 1.0, 1.0)
+					elif self.autonCase == 2:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					elif self.autonCase == 3:
+						self.autonDrive(-0.4, 0.4, 1.0, 1.0)
+					elif self.autonCase == 4:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+					elif self.autonCase == 5:#limelight
+						if self.drivetrain.autonLimeDrive(self.limelight.forwardSpeed(),
+								self.limelight.horizontalHatchSpeed(),
+								self.limelight.targetArea()):
+							self.drivetrain.resetEncoders()
+							self.autonCase += 1
+					elif self.autonCase == 6:#raise elevator
+						if self.elevator.autonElevator(HATCH_BOTTOM):
+							self.autonCase += 1	
+					elif self.autonCase == 7:#lower tilt to horizontal
+						if self.intake.autonAngle(160):
+							self.autonCase += 1
+			elif START_POSITION == 3:
+				if self.autonCase == 0:
+					self.autonDrive(0.4, 0.4, 3.0, 3.0)
+				elif self.autonCase == 1:
+					self.autonTimer.start()
+					if self.autonTimer.get() > 5.0:
+						self.autonDrive(0.4, 0.4, 3.0, 3.0)
+						self.autonTimer.stop()
+						self.autonTimer.reset()
+				elif self.autonCase == 2:
+					self.autonTimer.start()
+					if self.autonTimer.get() > 5.0:
+						self.autonDrive(-0.4, 0.4, 3.0, 3.0)
+						self.autonTimer.stop()
+						self.autonTimer.reset()
+				elif self.autonCase == 3:
+					self.autonTimer.start()
+					if self.autonTimer.get() > 5.0:
+						self.autonDrive(-0.4, 0.4, 1.0, 1.0)
+						self.autonTimer.stop()
+						self.autonTimer.reset()
+				elif self.autonCase == 4:
+					self.autonTimer.start()
+					if self.autonTimer.get() > 5.0:
+						self.autonDrive(-0.4, 0.4, 1.0, 1.0)
+						self.autonTimer.stop()
+						self.autonTimer.reset()
+				elif self.autonCase == 5:#limelight
+					if self.drivetrain.autonLimeDrive(self.limelight.forwardSpeed(),
+							self.limelight.horizontalHatchSpeed(),
+							self.limelight.targetArea()):
+						self.drivetrain.resetEncoders()
+						self.autonCase += 1
+				elif self.autonCase == 6:#raise elevator
+					if self.elevator.autonElevator(HATCH_BOTTOM):
+						self.autonCase += 1	
+				elif self.autonCase == 7:#lower tilt to horizontal
+					if self.intake.autonAngle(160):
+						self.autonCase += 1
+
+
+
+
 		
 	def teleopInit(self):
+		self.drivetrain.resetEncoders()
 		print('teleop init')
 
 
 		
 	def teleopPeriodic(self):
+		self.driverControl()
+
+	def autonDrive(self, rV: float, lV: float, rD: float, lD: float) -> bool:
+		if self.drivetrain.autonDrivetrain(rV,lV,rD,lD):
+			self.drivetrain.resetEncoders()
+			self.autonCase += 1
+
+	def driverControl(self):
 		#Variables to hold motor values
 		driveSpeed, driveAngle = 0, 0 
 		elevatorSpeed = .07 #constant to maintain height
@@ -130,6 +317,7 @@ class Robot(wpilib.TimedRobot):
 		self.elevator.translateElevator(elevatorSpeed)
 		self.intake.setSpeed(intakeSpeed)
 		self.intake.setAngle(intakeAngle)
+
 
 
 if __name__ == '__main__':

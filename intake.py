@@ -11,6 +11,8 @@ class Intake:
 		self.lBallObtainer = WPI_VictorSPX(LBALL_OBTAINER_VICTOR)
 		self.rBallObtainer = WPI_VictorSPX(RBALL_OBTAINER_VICTOR)
 		self.ballAngle = WPI_TalonSRX(BALL_ANGLE_TALON)
+		self.autonTimer = wpilib.Timer()
+		self.timerStart = False
 
 	def setSpeed(self, speed: float) -> None:
 		self.lBallObtainer.set(speed)
@@ -53,10 +55,22 @@ class Intake:
 			return True
 
 	def autonInOut(self, speed: float, seconds: float) -> bool:
-		pass
+		if not self.timerStart:
+			self.autonTimer.start()
+			self.timerStart = True
+		self.lBallObtainer.set(speed)
+		self.rBallObtainer.set(speed)
+
+		if autonTimer.get() > seconds:
+			self.autonTimer.reset()
+			self.timerStart = False
+			return True
+		else:
+			return False
+
 
 	def autonTimerPrep(self) -> None:
-		pass
+		self.timerStart = False
 
 	def getEncoder2Distance(self) -> float:
 		pass
