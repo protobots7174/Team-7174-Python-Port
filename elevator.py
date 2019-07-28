@@ -1,7 +1,7 @@
 import wpilib
 from math import fabs
 from ctre import WPI_TalonSRX
-from MyPID.py import ProtoPID
+from MyPID import ProtoPID
 
 
 ELEVATOR_TALON = 0
@@ -37,15 +37,15 @@ class Elevator:
 
 		if (fabs(height - currentHeight) > TOLERANCE_INCHES and 
 				fabs(height - currentHeight) > 8):
-			self.liftMotor.set(1 * direction):
+			self.liftMotor.set(1 * direction)
 			return False
 		elif (fabs(height - currentHeight) > TOLERANCE_INCHES and 
 				fabs(height - currentHeight) > 6):
-			self.liftMotor.set(.55 * direction):
+			self.liftMotor.set(.55 * direction)
 			return False
 		elif (fabs(height - currentHeight) > TOLERANCE_INCHES and 
 				fabs(height - currentHeight) > 3):
-			self.liftMotor.set(.4 * direction):
+			self.liftMotor.set(.4 * direction)
 			return False
 		else:
 			self.liftMotor.set(.07)
