@@ -226,18 +226,22 @@ class Robot(wpilib.TimedRobot):
 		elevatorSpeed = .07 #constant to maintain height
 		intakeSpeed = 0
 		intakeAngle = 0
+		limeArea = 0
 		usingLime = False
 
-		if self.driver.getAButtonPressed():
+		if self.driver.getAButton():
 			if self.limelight.targetLocated():
 				usingLime = True
 				driveSpeed = self.limelight.forwardSpeed()
 				driveAngle = self.limelight.horizontalHatchSpeed()
-		elif self.driver.getBButtonPressed():
+				limeArea = self.limelight.targetArea()
+			print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
+		elif self.driver.getBButton():
 			if self.limelight.targetLocated():
 				usingLime = True
 				driveSpeed = self.limelight.forwardSpeed()
 				driveAngle = self.limelight.horizontalBallSpeed()
+			print('b')
 		elif self.driver.getBackButtonPressed():
 			self.slowMode = not self.slowMode
 			if self.slowMode:
@@ -246,7 +250,8 @@ class Robot(wpilib.TimedRobot):
 				print('Slow Mode Disabled')
 			#print('back')
 		elif self.driver.getStartButtonPressed():
-			print('start')
+			self.limelight.toggleLimelight(False)
+			#print('start')
 		elif self.driver.getStickButtonPressed(0):
 			print('left stick button')
 		elif self.driver.getStickButtonPressed(1):

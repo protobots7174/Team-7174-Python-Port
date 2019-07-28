@@ -27,6 +27,7 @@ class CitrusLumen:
 		self.hatchCorrectionMultiplier = LIMELIGHT_HATCH_CORRECTION / \
 			LIMELIGHT_MAX_AREA
 		self.limelight = NetworkTables.getTable("limelight")
+		self.currentOffset = 0
 		self.toggleLimelight(False)
 
 	def toggleLimelight(self, toggle: bool) -> None:
@@ -79,25 +80,25 @@ class CitrusLumen:
 			return LIMELIGHT_SPEED
 
 	def horizontalBallSpeed(self) -> float:
-		currentOffset = self.targetOffsetHorizontal() - self.getBallCorrection()
-		if currentOffset > 0 and math.fabs(currentOffset) > \
+		self.currentOffset = self.targetOffsetHorizontal() - self.getBallCorrection()
+		if self.currentOffset > 0 and math.fabs(self.currentOffset) > \
 				LIMELIGHT_TOLERANCE:
-			return min(LIMELIGHT_TURNSPEED, currentOffset * .12)
-		elif currentOffset < 0 and math.fabs(currentOffset) > \
+			return min(LIMELIGHT_TURNSPEED, self.currentOffset * .12)
+		elif self.currentOffset < 0 and math.fabs(self.currentOffset) > \
 				LIMELIGHT_TOLERANCE:
-			return max(-LIMELIGHT_TURNSPEED, currentOffset * .12)
+			return max(-LIMELIGHT_TURNSPEED, self.currentOffset * .12)
 		else:
 			return 0
 
 
 	def horizontalHatchSpeed(self) -> float:
-		currentOffset = self.targetOffsetHorizontal() - self.getHatchCorrection()
-		if currentOffset > 0 and math.fabs(currentOffset) > \
+		self.currentOffset = self.targetOffsetHorizontal() - self.getHatchCorrection()
+		if self.currentOffset > 0 and math.fabs(self.currentOffset) > \
 				LIMELIGHT_TOLERANCE:
-			return min(LIMELIGHT_TURNSPEED, currentOffset * .12)
+			return min(LIMELIGHT_TURNSPEED, self.currentOffset * .12)
 		elif (self.targetOffsetHorizontal() - self.getHatchCorrection()) < 0 \
-				and math.fabs(currentOffset) > LIMELIGHT_TOLERANCE:
-			return max(-LIMELIGHT_TURNSPEED, currentOffset * .12)
+				and math.fabs(self.currentOffset) > LIMELIGHT_TOLERANCE:
+			return max(-LIMELIGHT_TURNSPEED, self.currentOffset * .12)
 		else:
 			return 0
 

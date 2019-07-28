@@ -39,12 +39,12 @@ class Drivetrain:
 	encoder functions 
 	'''
 	def resetEncoders(self) -> None:
-		lDriveF.setSelectedSensorPosition(0.0)
-		rDriveR.setSelectedSensorPosition(0.0)
+		self.lDriveF.setSelectedSensorPosition(0)
+		self.rDriveR.setSelectedSensorPosition(0)
 
 	def getDistance(self) -> float:
-		return (-lDriveF.getSelectedSensorPosition(0) + \
-			rDriveR.getSelectedSensorPosition(0)) \
+		return (-self.lDriveF.getSelectedSensorPosition(0) + \
+			self.rDriveR.getSelectedSensorPosition(0)) \
 			/ 2 / DRIVE_ENCODER_COUNTS_PER_FOOT
 
 	def getTurningDistance(self) -> float:
@@ -53,16 +53,16 @@ class Drivetrain:
 			 / 2 / DRIVE_ENCODER_COUNTS_PER_FOOT
 
 	def getRDistance(self) -> float:
-		return rDriveR.getSelectedSensorPosition(0) / DRIVE_ENCODER_COUNTS_PER_FOOT
+		return self.rDriveR.getSelectedSensorPosition(0) / DRIVE_ENCODER_COUNTS_PER_FOOT
 
 	def getLDistance(self) -> float:
-		return -lDriveF.getSelectedSensorPosition(0) / DRIVE_ENCODER_COUNTS_PER_FOOT	
+		return -self.lDriveF.getSelectedSensorPosition(0) / DRIVE_ENCODER_COUNTS_PER_FOOT	
 
 	def getRVelocity(self) -> float:
-		return rDriveR.getSelectedSensorVelocity(0)	
+		return self.rDriveR.getSelectedSensorVelocity(0)	
 
 	def getLVelocity(self) -> float:
-		return -lDriveR.getSelectedSensorVelocity(0)	
+		return -self.lDriveR.getSelectedSensorVelocity(0)	
 
 	def getYaw(self) -> float:
 		pass
