@@ -81,6 +81,16 @@ class CitrusLumen:
 
 	def horizontalBallSpeed(self) -> float:
 		self.currentOffset = self.targetOffsetHorizontal() - self.getBallCorrection()
+		'''
+		if self.currentOffset > 0 and math.fabs(self.currentOffset) > \
+				LIMELIGHT_TOLERANCE:
+			return min(LIMELIGHT_TURNSPEED, self.currentOffset * .12)
+		elif (self.targetOffsetHorizontal() - self.getBallCorrection()) < 0 \
+				and math.fabs(self.currentOffset) > LIMELIGHT_TOLERANCE:
+			return max(-LIMELIGHT_TURNSPEED, self.currentOffset * .12)
+		else:
+			return 0
+			'''
 		if self.currentOffset > 0 and math.fabs(self.currentOffset) > \
 				LIMELIGHT_TOLERANCE:
 			return min(LIMELIGHT_TURNSPEED, self.currentOffset * .12)

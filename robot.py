@@ -235,13 +235,18 @@ class Robot(wpilib.TimedRobot):
 				driveSpeed = self.limelight.forwardSpeed()
 				driveAngle = self.limelight.horizontalHatchSpeed()
 				limeArea = self.limelight.targetArea()
-			print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
+				print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
+			else:
+				print('No target found')
 		elif self.driver.getBButton():
 			if self.limelight.targetLocated():
 				usingLime = True
 				driveSpeed = self.limelight.forwardSpeed()
 				driveAngle = self.limelight.horizontalBallSpeed()
-			print('b')
+				limeArea = self.limelight.targetArea()
+				print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
+			else:
+				print('No target found')
 		elif self.driver.getBackButtonPressed():
 			self.slowMode = not self.slowMode
 			if self.slowMode:
