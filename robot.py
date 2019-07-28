@@ -79,7 +79,7 @@ class Robot(wpilib.TimedRobot):
 							self.autonTimer.stop()
 							self.autonTimer.reset()
 			'''left start'''
-			elif START_POSITION == -1:
+			if START_POSITION == -1:
 				if self.autonCase == 0:
 					if self.drivetrain.autonPID(2.0):
 						self.drivetrain.resetEncoders()
@@ -113,7 +113,7 @@ class Robot(wpilib.TimedRobot):
 						self.drivetrain.resetEncoders()
 						self.autonCase += 1
 			'''center start'''
-			elif START_POSITION == 0:
+			if START_POSITION == 0:
 				if CENTER_TRANSPORT_RIGHTLEFT == 1:
 					if self.autonCase == 0:
 						self.autonDrive(0.4, 0.4, 3.0, 3.0)
@@ -139,7 +139,7 @@ class Robot(wpilib.TimedRobot):
 							self.autonCase += 1
 
 				'''center left'''
-				elif CENTER_TRANSPORT_RIGHTLEFT == -1:
+				if CENTER_TRANSPORT_RIGHTLEFT == -1:
 					if self.autonCase == 0:
 						self.autonDrive(0.4, 0.4, 3.0, 3.0)
 					elif self.autonCase == 1:
@@ -226,11 +226,18 @@ class Robot(wpilib.TimedRobot):
 		elevatorSpeed = .07 #constant to maintain height
 		intakeSpeed = 0
 		intakeAngle = 0
+		usingLime = False
 
 		if self.driver.getAButtonPressed():
-			print('a')	
+			if self.limelight.targetLocated():
+				usingLime = True
+				driveSpeed = self.limelight.forwardSpeed()
+				driveAngle = self.limelight.horizontalHatchSpeed()
 		elif self.driver.getBButtonPressed():
-			print('b')
+			if self.limelight.targetLocated():
+				usingLime = True
+				driveSpeed = self.limelight.forwardSpeed()
+				driveAngle = self.limelight.horizontalBallSpeed()
 		elif self.driver.getBackButtonPressed():
 			self.slowMode = not self.slowMode
 			if self.slowMode:
@@ -297,7 +304,7 @@ class Robot(wpilib.TimedRobot):
 			#print(f'right y: {-self.driver.getY(1)}')
 			pass
 
-		if self.slowMode:
+		if self.slowMode and not usingLime:#lime speed is already reduced
 			driveAngle = driveAngle * SLOW_SPEED
 			driveSpeed = driveSpeed * SLOW_SPEED
 			elevatorSpeed = elevatorSpeed * SLOW_SPEED
