@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import wpilib
 import wpilib.drive
 from drivetrain import Drivetrain
@@ -37,9 +37,12 @@ class Robot(wpilib.TimedRobot):
 		self.autonTimer = wpilib.Timer()
 		self.autonCase = None
 		self.autonAbort = None
+		self.debugging = False
+
 
 	def robotPeriodic(self):
 		pass
+
 
 	def autonomousInit(self):
 		self.drivetrain.resetEncoders()
@@ -49,6 +52,7 @@ class Robot(wpilib.TimedRobot):
 		self.autonAbort = False
 		self.speedMultiplier = 1.0
 		self.autonTimer.reset()
+
 
 	def autonomousPeriodic(self):
 		if driver.getStartButtonPressed():
@@ -201,24 +205,25 @@ class Robot(wpilib.TimedRobot):
 				elif self.autonCase == 7:#lower tilt to horizontal
 					if self.intake.autonAngle(160):
 						self.autonCase += 1
-
-
-
-
 		
+
 	def teleopInit(self):
 		self.drivetrain.resetEncoders()
-		print('teleop init')
-
-
+		#set to true for print statements
+		self.debugging = False
+		if self.debugging:
+			print('teleop init')
 		
+
 	def teleopPeriodic(self):
 		self.driverControl()
+
 
 	def autonDrive(self, rV: float, lV: float, rD: float, lD: float) -> bool:
 		if self.drivetrain.autonDrivetrain(rV,lV,rD,lD):
 			self.drivetrain.resetEncoders()
 			self.autonCase += 1
+
 
 	def driverControl(self):
 		#Variables to hold motor values
@@ -230,62 +235,80 @@ class Robot(wpilib.TimedRobot):
 		usingLime = False
 
 		if self.driver.getAButton():
+			if self.debugging:
+				print('a')
 			if self.limelight.targetLocated():
 				usingLime = True
 				driveSpeed = self.limelight.forwardSpeed()
 				driveAngle = self.limelight.horizontalHatchSpeed()
 				limeArea = self.limelight.targetArea()
-				print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
+				if self.debugging:
+					print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
 			else:
-				print('No target found')
+				if self.debugging:
+					print('No target found')
 		elif self.driver.getBButton():
+			if self.debugging:
+				print('b')
 			if self.limelight.targetLocated():
 				usingLime = True
 				driveSpeed = self.limelight.forwardSpeed()
 				driveAngle = self.limelight.horizontalBallSpeed()
 				limeArea = self.limelight.targetArea()
-				print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
+				if self.debugging:
+					print(f'speed: {driveSpeed}, angle: {driveAngle}, area: {limeArea}')
 			else:
-				print('No target found')
+				if self.debugging:
+					print('No target found')
 		elif self.driver.getBackButtonPressed():
 			self.slowMode = not self.slowMode
 			if self.slowMode:
 				print('Slow Mode Enabled')
 			else:
 				print('Slow Mode Disabled')
-			#print('back')
+			if self.debugging:
+				print('back')
 		elif self.driver.getStartButtonPressed():
 			self.limelight.toggleLimelight(False)
-			#print('start')
+			if self.debugging:
+				print('start')
 		elif self.driver.getStickButtonPressed(0):
-			print('left stick button')
+			if self.debugging:
+				print('left stick button')
 		elif self.driver.getStickButtonPressed(1):
-			print('right stick button')
+			if self.debugging:
+				print('right stick button')
 
 		'''intake'''
 		if self.driver.getBumper(0):
 			intakeSpeed = -0.5
-			#print('left bumper')
+			if self.debugging:
+				print('left bumper')
 		elif self.driver.getBumper(1):
 			intakeSpeed = .8
-			#print('right bumper')
+			if self.debugging:
+				print('right bumper')
 		if self.driver.getXButton():
 			intakeAngle = -0.7
-			#print('x')
+			if self.debugging:
+				print('x')
 		elif self.driver.getYButton():
 			intakeAngle = 0.7
-			#print('y')
+			if self.debugging:
+				print('y')
 
 		'''elevator'''
 		#left trigger
 		if self.driver.getTriggerAxis(0) > .05:
 			elevatorSpeed = -self.driver.getTriggerAxis(0)*0.7 #move slower while lowering elevator
-			#print(f'left trigger: {self.driver.getTriggerAxis(0)}')
+			if self.debugging:
+				print(f'left trigger: {self.driver.getTriggerAxis(0)}')
 
 		#right trigger
 		elif self.driver.getTriggerAxis(1) > .05:
 			elevatorSpeed = self.driver.getTriggerAxis(1)
-			#print(f'right trigger: {abs(self.driver.getTriggerAxis(1))}')
+			if self.debugging:
+				print(f'right trigger: {abs(self.driver.getTriggerAxis(1))}')
 
 		'''drivetrain'''
 		#left and right stick
@@ -293,26 +316,37 @@ class Robot(wpilib.TimedRobot):
 		#-------------------------------------
 		#left stick x axis
 		if self.driver.getX(0) < -.05 or self.driver.getX(0) > .05:
-			#print(f'left x: {self.driver.getX(0)}')
-			pass
+			#driveAngle = self.driver.getX(0)
+			if self.debugging:
+				print(f'left x: {self.driver.getX(0)}')
 
 		#right stick x axis
 		if self.driver.getX(1) < -.05 or self.driver.getX(1) > .05:
+			if self.debugging:
+				print(f'right x: {self.driver.getX(1)}')
+
 			driveAngle = self.driver.getX(1)
-			#print(f'right x: {self.driver.getX(1)}')
 
 		#left stick y axis
 		if self.driver.getY(0) < -.05 or self.driver.getY(0) > .05:
 			#negative because of the inverted signal
 			driveSpeed = -self.driver.getY(0)
-			#print(f'left y: {-self.driver.getY(0)}')
+			if self.debugging:
+				print(f'left y: {-self.driver.getY(0)}')
 
-		#right stick y axis is mapped to right trigger for some reason
+			'''
+			#this is only for the steering wheel, max values are .71 and -0.81
+			if driveSpeed > 0:
+				driveSpeed = self.remap(driveSpeed, 0, .71, 0, 1)
+			elif driveSpeed < 0:
+				driveSpeed = self.remap(driveSpeed, 0, -.81, 0, -1)
+			'''
+
 		#right stick y axis
 		if self.driver.getY(1) < -.05 or self.driver.getY(1) > .05:
 			#negative because of the inverted signal
-			#print(f'right y: {-self.driver.getY(1)}')
-			pass
+			if self.debugging:
+				print(f'right y: {-self.driver.getY(1)}')
 
 		if self.slowMode and not usingLime:#lime speed is already reduced
 			driveAngle = driveAngle * SLOW_SPEED
@@ -326,12 +360,21 @@ class Robot(wpilib.TimedRobot):
 		#h = self.elevator.getHeight()
 		#print(h)
 
+		if self.debugging:
+			print(f'drive speed: {driveSpeed}, drive angle {driveAngle} \
+					elevator speed: {elevatorSpeed}, intake speed: {intakeSpeed} \
+					intake angle {intakeAngle}')
 		#apply values to motors
 		self.drivetrain.arcadeDrive(driveSpeed, driveAngle)
 		self.elevator.translateElevator(elevatorSpeed)
 		self.intake.setSpeed(intakeSpeed)
 		self.intake.setAngle(intakeAngle)
 
+
+	#maps x, which has a range of a-b, to a range of c-d
+	def remap(self, x, a, b, c, d):
+		y = (x-a)/(b-a)*(d-c)+c
+		return y
 
 
 if __name__ == '__main__':
